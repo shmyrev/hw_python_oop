@@ -44,7 +44,6 @@ class Training:
         result: float
 
         result = self.action * self.LEN_STEP / self.M_IN_KM
-
         return result
 
     # расчёт средней скорости движения во время тренировки:
@@ -54,7 +53,6 @@ class Training:
 
         distance = self.get_distance()
         result = distance / self.duration
-
         return result
 
     # расчёт количества потраченных калорий за тренировку:
@@ -87,7 +85,6 @@ class Running(Training):
         result = ((((self.COEFF_CALORIES_1 * self.get_mean_speed() -
                     self.COEFF_CALORIES_2) * self.weight / self.M_IN_KM *
                     (self.duration * self.HOUR_IN_MIN))))
-
         return result
 
 
@@ -109,7 +106,6 @@ class SportsWalking(Training):
                     (self.get_mean_speed() ** 2 // self.height) *
                     self.COEFF_CALORIES_2 * self.weight) *
                     (self.duration * self.HOUR_IN_MIN))))
-
         return result
 
 
@@ -129,7 +125,6 @@ class Swimming(Training):
 
         result = (((self.length_pool * self.count_pool
                     / self.M_IN_KM / self.duration)))
-
         return result
 
     def get_spent_calories(self) -> float:
@@ -137,7 +132,6 @@ class Swimming(Training):
         result: float
 
         result = (self.get_mean_speed() + 1.1) * 2 * self.weight
-
         return result
 
 
@@ -148,7 +142,6 @@ def read_package(workout_type: str, data: list) -> Training:
         "RUN": Running,
         "WLK": SportsWalking
     }
-
     return codes_type[workout_type](*data)
 
 
