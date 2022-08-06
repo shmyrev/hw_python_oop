@@ -1,24 +1,30 @@
+from dataclasses import dataclass
+from typing import List
+
+
+@dataclass
+class InfoData:
+    training_type: str
+    duration: float
+    distance: float
+    speed: float
+    calories: float
+
+
 class InfoMessage:
     """Информационное сообщение о тренировке."""
-    def __init__(self,
-                 training_type: str,
-                 duration: float,
-                 distance: float,
-                 speed: float,
-                 calories: float
-                 ) -> None:
-        self.training_type = training_type
-        self.duration = duration
-        self.distance = distance
-        self.speed = speed
-        self.calories = calories
+    def __init__(self, training_type, duration,
+                 distance, speed, calories) -> None:
+
+        self.info_data = InfoData(training_type, duration,
+                                  distance, speed, calories)
 
     def get_message(self) -> str:
-        message = ((f'Тип тренировки: {self.training_type}; '
-                    f'Длительность: {self.duration:.3f} ч.; '
-                    f'Дистанция: {self.distance:.3f} км; '
-                    f'Ср. скорость: {self.speed:.3f} км/ч; '
-                    f'Потрачено ккал: {self.calories:.3f}.'))
+        message = ((f'Тип тренировки: {self.info_data.training_type}; '
+                    f'Длительность: {self.info_data.duration:.3f} ч.; '
+                    f'Дистанция: {self.info_data.distance:.3f} км; '
+                    f'Ср. скорость: {self.info_data.speed:.3f} км/ч; '
+                    f'Потрачено ккал: {self.info_data.calories:.3f}.'))
         return message
 
 
@@ -60,7 +66,8 @@ class Training:
     # расчёт количества потраченных калорий за тренировку:
     def get_spent_calories(self) -> float:
         """Получить количество затраченных калорий."""
-        pass
+        if self.training_type.__class__ is not self.__class__:
+            return NotImplementedError()
 
     # создание объекта сообщения о результатах тренировки:
     def show_training_info(self) -> InfoMessage:
@@ -79,7 +86,7 @@ class Running(Training):
 
     def __init__(self, action, duration, weight):
         super().__init__(action, duration, weight)
-        self.training_type = "Running"
+        self.training_type = __class__.__name__
 
     def get_spent_calories(self) -> float:
         """Получить количество затраченных калорий."""
@@ -101,7 +108,7 @@ class SportsWalking(Training):
 
     def __init__(self, action, duration, weight, height):
         super().__init__(action, duration, weight)
-        self.training_type = "SportsWalking"
+        self.training_type = __class__.__name__
         self.height = height
 
     def get_spent_calories(self) -> float:
@@ -119,10 +126,12 @@ class SportsWalking(Training):
 class Swimming(Training):
     """Тренировка: плавание."""
     LEN_STEP: float = 1.38
+    COEFF_CALORIES_1: float = 1.1
+    COEFF_CALORIES_2: float = 2
 
     def __init__(self, action, duration, weight, length_pool, count_pool):
         super().__init__(action, duration, weight)
-        self.training_type = "Swimming"
+        self.training_type = __class__.__name__
         self.length_pool = length_pool
         self.count_pool = count_pool
 
@@ -139,31 +148,35 @@ class Swimming(Training):
         """Получить количество затраченных калорий."""
         result: float
 
-        result = (self.get_mean_speed() + 1.1) * 2 * self.weight
+        result = ((self.get_mean_speed() + self.COEFF_CALORIES_1)
+                  * self.COEFF_CALORIES_2 * self.weight)
 
         return result
 
 
-def read_package(workout_type: str, data: list) -> Training:
+def read_package(workout_type: str, data: List[int]) -> Training:
     """Прочитать данные полученные от датчиков."""
     codes_type = {
         "SWM": Swimming,
         "RUN": Running,
         "WLK": SportsWalking
     }
-
-    return codes_type[workout_type](*data)
+    if workout_type in codes_type:
+        return codes_type[workout_type](*data)
 
 
 def main(training: Training) -> None:
     """Главная функция."""
-    info_message = training.show_training_info().get_message()
-    print(info_message)
+    if training is None:
+        print(f"Такой тип {workout_type} - не предусмотрен программой!")
+    else:
+        info_message = training.show_training_info()
+        print(info_message.get_message())
 
 
 if __name__ == '__main__':
     packages = [
-        ('SWM', [720, 1, 80, 25, 40]),
+        ('ЕWM', [720, 1, 80, 25, 40]),
         ('RUN', [1206, 12, 6]),
         ('WLK', [9000, 1, 75, 180]),
     ]
